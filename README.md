@@ -50,5 +50,8 @@ Os Anexos ficam em https://www.gov.br/nfse/pt-br/biblioteca/documentacao-tecnica
 
 Decisões e regras: `PLANO.md` e `CLAUDE.md`. Termos: `GLOSSARY.md`.
 
+## Licença
+Código sob [licença MIT](LICENSE). Os Anexos VII e VIII em `dados/oficial/` são documentos do Portal Nacional da NFS-e e não são cobertos por ela. As fontes têm licença própria (abaixo).
+
 ## Fontes
 Bricolage Grotesque e Instrument Sans (SIL Open Font License 1.1, licenças em `src/fontes/`), embutidas no HTML para a página funcionar sem internet.
