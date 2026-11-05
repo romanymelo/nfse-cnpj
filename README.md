@@ -11,7 +11,7 @@ A alíquota de ISS não é mostrada: ela varia com o faturamento.
 Também traz uma busca por descrição ("consulta", "software", "manutenção"), restrita aos serviços da empresa, com os selos "NBS mais provável" e "boa correspondência". A aba "Como usar" explica a página ao cliente.
 
 ## Telas
-Capturas com empresa fictícia (BrasilAPI simulada).
+Capturas em modo escuro, com empresa fictícia (BrasilAPI simulada). A página também tem modo claro, pelo botão no topo.
 
 ![Abertura](docs/img/01-abertura.png)
 ![Atividades e serviços da empresa](docs/img/02-servicos.png)
@@ -23,10 +23,12 @@ No celular:
 <img src="docs/img/05-celular.png" alt="Versão para celular" width="300">
 
 ## Como usar
-Abra `dist/Consulta NFSe por CNPJ - vN - DD-MM-AAAA.html` no navegador. Não precisa instalar nada.
+Abra o arquivo `dist/Consulta NFSe por CNPJ - vN - DD-MM-AAAA.html` no navegador. Não precisa instalar nada.
 A única conexão é a consulta do CNPJ na [BrasilAPI](https://brasilapi.com.br). Se ela falhar, dá para colar os CNAEs em "Informar as atividades (CNAE) manualmente".
 
 ## Como atualizar
+A planilha de correlação CNAE → item LC 116 **não vem neste repositório**. Para gerar a página, coloque a sua em `dados/correlacao/`, com a aba "Correlação" e as colunas: A = CNAE, B = descrição, C = item LC 116, H = anexo do Simples, I = descrição do anexo. A coluna de alíquota é ignorada de propósito.
+
 Requisitos: Python 3 com `openpyxl`; para os testes, `playwright` (`pip install playwright` e `playwright install chromium`).
 
 ```
@@ -41,14 +43,14 @@ Os Anexos ficam em https://www.gov.br/nfse/pt-br/biblioteca/documentacao-tecnica
 | Pasta | Conteúdo |
 |---|---|
 | `dados/oficial/` | Anexos VII e VIII |
-| `dados/correlacao/` | Correlação CNAE → item LC 116 de Maceió (com o anexo do Simples) |
-| `dados/processado/` | CSVs e `dados.json` gerados pelo pipeline |
+| `dados/correlacao/` | Sua planilha de correlação CNAE → item LC 116 (local, fora do repositório) |
+| `dados/processado/` | CSVs e `dados.json` gerados pelo pipeline (local, fora do repositório) |
 | `src/` | Pipeline (normalização, JSON, montagem) e modelo da página |
 | `testes/` | Teste de navegador (BrasilAPI simulada, CNPJs fictícios) |
 | `dist/` | Páginas geradas, uma por versão |
 | `revisao/` | Planilha para revisão fiscal do vocabulário de busca (`gera_revisao.py <raiz> <saida.xlsx>`) |
 
-Decisões e regras: `PLANO.md` e `CLAUDE.md`. Termos: `GLOSSARY.md`.
+Etapas de construção: `ETAPAS.md`. Termos: `GLOSSARY.md`.
 
 ## Licença
 Código sob [licença MIT](LICENSE). Os Anexos VII e VIII em `dados/oficial/` são documentos do Portal Nacional da NFS-e e não são cobertos por ela. As fontes têm licença própria (abaixo).
