@@ -10,6 +10,18 @@ A alíquota de ISS não é mostrada: ela varia com o faturamento.
 
 Também traz uma busca por descrição ("consulta", "software", "manutenção"), restrita aos serviços da empresa, com os selos "NBS mais provável" e "boa correspondência". A aba "Como usar" explica a página ao cliente.
 
+## Telas
+Capturas com empresa fictícia (BrasilAPI simulada).
+
+![Abertura](docs/img/01-abertura.png)
+![Atividades e serviços da empresa](docs/img/02-servicos.png)
+![Busca por descrição](docs/img/03-busca.png)
+![Aba Como usar](docs/img/04-como-usar.png)
+
+No celular:
+
+<img src="docs/img/05-celular.png" alt="Versão para celular" width="300">
+
 ## Como usar
 Abra `dist/Consulta NFSe por CNPJ - vN - DD-MM-AAAA.html` no navegador. Não precisa instalar nada.
 A única conexão é a consulta do CNPJ na [BrasilAPI](https://brasilapi.com.br). Se ela falhar, dá para colar os CNAEs em "Informar as atividades (CNAE) manualmente".
