@@ -1,0 +1,19 @@
+__pycache__/
+node_modules/
+*.pyc
+.DS_Store
+# Nunca versionar dados de clientes (notas fiscais, XMLs, DANFSe, listas de atividades reais)
+clientes/
+*.xml
+*.zip
+*.pdf
+~$*
+
+# Correlacao CNAE: fica so na maquina local
+dados/correlacao/
+dados/processado/correlacao.csv
+
+# Documentos internos e dados derivados: so as planilhas oficiais (dados/oficial) vao ao GitHub
+CLAUDE.md
+PLANO.md
+dados/processado/

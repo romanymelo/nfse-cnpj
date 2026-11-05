@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consulta NFSe por CNPJ - /*VERSAO*/</title>
+<script>(function(){var t;try{t=localStorage.getItem('tema')}catch(e){}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>
+<style>
+/*FONTES*/
+:root{
+  --sea:#0A3540;--sea-2:#0F4552;--foam:#E6F5F2;--foam-mute:#9CC7C3;--piscina:#7FE6D6;
+  --bg:#EDF5F3;--paper:#FFFFFF;--ink:#0E2A31;--mute:#5A7479;--line:#D5E5E2;--tint:#E3F3F0;
+  --lagoa:#0B8F84;--lagoa-ink:#FFFFFF;--lagoa-soft:#D3F1EC;
+  --coral:#C9432F;--coral-bg:#FCE5E0;--sol-ink:#6E4B00;--sol-bg:#FFF2CF;--sol:#E0A526;--ambar:#8F4E00;--ambar-bg:#FFE2B3;
+  --shadow:0 1px 0 rgba(10,53,64,.04),0 12px 32px -12px rgba(10,53,64,.18);
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --sans:"Instrument Sans","Segoe UI",system-ui,sans-serif;
+}
+:root[data-theme="dark"]{
+  --sea:#04171C;--sea-2:#082730;--bg:#071E24;--paper:#0C2A31;--ink:#E3F1EE;--mute:#8EAEB0;--line:#1B4049;--tint:#0F363D;
+  --lagoa:#3FCDBD;--lagoa-ink:#03161A;--lagoa-soft:#0F3F40;
+  --coral:#FF8C78;--coral-bg:#3B1B17;--sol-ink:#F4CD6E;--sol-bg:#30270F;--sol:#F4CD6E;--ambar:#FFB547;--ambar-bg:#3D2A0A;
+  --shadow:0 1px 0 rgba(0,0,0,.2),0 14px 34px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html{font-size:clamp(15px,calc(.3vw + 12px),18px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--piscina);outline-offset:3px;border-radius:.4rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.5rem}
+
+/* ===== Abertura (o mar) ===== */
+.hero{position:relative;background:var(--sea);color:var(--foam);overflow:hidden;padding:1.4rem 0 6.5rem}
+.ondas{position:absolute;left:0;right:0;bottom:0;width:100%;height:9rem;pointer-events:none}
+.ondas path{fill:none;stroke:var(--piscina);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.topo{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:3.2rem}
+.marca{font:600 1rem var(--display);letter-spacing:-.01em;display:flex;align-items:center;gap:.6rem}
+.marca svg{flex:none}
+.ver{font:500 .78rem var(--sans);color:var(--foam-mute);border:1px solid rgba(127,230,214,.28);border-radius:99px;padding:.1rem .6rem}
+.tema{background:transparent;border:1px solid rgba(127,230,214,.32);color:var(--foam);border-radius:99px;padding:.35rem .9rem;font-size:.85rem;cursor:pointer}
+.tema:hover{border-color:var(--piscina)}
+h1{font:700 clamp(1.8rem,3.3vw,2.85rem)/1.06 var(--display);letter-spacing:-.03em;margin:0 0 1.6rem;max-width:22ch;text-wrap:balance}
+.campo{display:flex;align-items:center;gap:.5rem;background:var(--paper);border-radius:1.2rem;padding:.45rem .45rem .45rem 1.3rem;max-width:44rem;box-shadow:0 18px 40px -18px rgba(0,0,0,.55)}
+.campo:focus-within{box-shadow:0 0 0 4px rgba(127,230,214,.45),0 18px 40px -18px rgba(0,0,0,.55)}
+#cnpj{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font:600 clamp(1.1rem,1.8vw,1.3rem) var(--display);letter-spacing:.02em;font-variant-numeric:tabular-nums;padding:.55rem 0}
+#cnpj::placeholder{color:var(--mute);opacity:.55}
+#cnpj::-webkit-search-cancel-button{display:none}
+.btn{border:0;border-radius:.85rem;padding:.85rem 1.4rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-pri{background:var(--lagoa);color:var(--lagoa-ink)}
+.btn-pri:hover{filter:brightness(1.08)}
+.acoes{display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;margin-top:1rem;max-width:44rem}
+#msg{margin:0;flex:1 1 18rem;color:var(--foam-mute);font-size:.92rem}
+#msg.erro{color:#FFB4A6;font-weight:600}
+.link{background:none;border:0;padding:.2rem 0;color:var(--foam);text-decoration:underline;text-decoration-color:rgba(127,230,214,.5);text-underline-offset:.25em;cursor:pointer;font-size:.92rem}
+.link:hover{text-decoration-color:var(--piscina)}
+#manual{max-width:44rem;margin-top:1.1rem}
+#manual summary{list-style:none;cursor:pointer;color:var(--foam);font-size:.92rem;display:inline-flex;align-items:center;gap:.45rem}
+#manual summary::-webkit-details-marker{display:none}
+#manual summary::before{content:"";width:.45rem;height:.45rem;border-right:2px solid var(--piscina);border-bottom:2px solid var(--piscina);transform:rotate(-45deg);transition:transform .2s}
+#manual[open] summary::before{transform:rotate(45deg)}
+#manual p{color:var(--foam-mute);font-size:.88rem;margin:.6rem 0}
+#cnaes{width:100%;min-height:5.5rem;resize:vertical;background:var(--sea-2);color:var(--foam);border:1px solid rgba(127,230,214,.3);border-radius:.9rem;padding:.8rem 1rem;font:500 1rem/1.5 var(--sans);font-variant-numeric:tabular-nums}
+#cnaes:focus{outline:0;border-color:var(--piscina)}
+#cnaes::placeholder{color:var(--foam-mute);opacity:.7}
+
+/* ===== Conteúdo ===== */
+main.wrap{position:relative;margin-top:-4rem;padding-bottom:4rem}
+.ver,.tema{white-space:nowrap}
+#hero-consulta:not([hidden]){display:grid;grid-template-columns:minmax(0,44rem) 23rem;justify-content:space-between;column-gap:3rem}
+#hero-consulta>*{grid-column:1}
+.amostra{grid-column:2 !important;grid-row:1 / span 6;align-self:start;background:rgba(255,255,255,.04);border:1px solid rgba(127,230,214,.25);border-radius:1.3rem;padding:1.3rem 1.4rem}
+.amostra{border-style:dashed;border-color:rgba(127,230,214,.45)}
+.amostra .rot{display:inline-block;font:700 .85rem var(--display);color:var(--sea);background:var(--piscina);border-radius:99px;padding:.15rem .8rem}
+.amostra .leg{margin:1rem 0 0;padding-top:.8rem;border-top:1px solid rgba(127,230,214,.2);font-size:.85rem;color:var(--foam-mute)}
+.amostra .num{font:700 2.3rem/1 var(--display);letter-spacing:-.04em;color:var(--piscina);margin:.7rem 0 .2rem}
+.amostra .nome{font:600 1rem var(--display);margin-bottom:.9rem}
+.amostra dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.45rem 1rem;border-top:1px solid rgba(127,230,214,.2);padding-top:.9rem;font-size:.9rem}
+.amostra dt{color:var(--foam-mute)}
+.amostra dd{margin:0;font:600 .98rem var(--display);font-variant-numeric:tabular-nums}
+.hero .wrap{position:relative}
+@media (max-width:1060px){.amostra{display:none}#hero-consulta:not([hidden]){display:block}}
+.vazio{background:var(--paper);border-radius:1.4rem;padding:1.8rem 2rem;box-shadow:var(--shadow);max-width:44rem}
+.vazio h2{font:650 1.35rem/1.25 var(--display);margin:0 0 .4rem;letter-spacing:-.015em}
+.vazio p{margin:0;color:var(--mute)}
+.emp{background:var(--paper);border-radius:1.4rem;padding:1.4rem 2rem;box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:1rem 2rem}
+.emp .rot,.fatos dt{display:block;font-size:.8rem;color:var(--mute);margin-bottom:.2rem}
+.emp h2{font:700 clamp(1.08rem,1.7vw,1.35rem)/1.25 var(--display);letter-spacing:-.02em;margin:0}
+.fatos{display:flex;margin:0}
+.fatos div{padding:0 1.6rem;border-left:1px solid var(--line)}
+.fatos div:last-child{padding-right:0}
+.fatos dd{margin:0;font:600 1.05rem/1.25 var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sit{display:inline-block;margin-top:.5rem;font-size:.85rem;font-weight:600;color:var(--coral);background:var(--coral-bg);border-radius:99px;padding:.1rem .7rem}
+.secao{font:650 1.25rem/1.3 var(--display);letter-spacing:-.015em;margin:2.6rem 0 .9rem}
+.secao small{font:400 .9rem var(--sans);color:var(--mute);margin-left:.6rem;letter-spacing:0}
+
+/* Atividades */
+.cnbox{background:var(--paper);border-radius:1.2rem;box-shadow:var(--shadow);overflow:hidden}
+table.cn{width:100%;border-collapse:collapse;font-size:.95rem}
+table.cn th{text-align:left;font-weight:500;font-size:.82rem;color:var(--mute);padding:.9rem 1.1rem .6rem;border-bottom:1px solid var(--line)}
+table.cn td{padding:.75rem 1.1rem;border-top:1px solid var(--line);vertical-align:top}
+table.cn tbody tr:first-child td{border-top:0}
+table.cn td.cod,table.cn td.it{font:600 1rem var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.cn td.it{color:var(--lagoa)}
+table.cn td.ds{color:var(--ink);max-width:30rem}
+.badge{display:inline-block;font-size:.8rem;font-weight:600;border-radius:99px;padding:.08rem .65rem;white-space:nowrap}
+.bad{color:var(--coral);background:var(--coral-bg)}
+.ok{color:var(--ambar);background:var(--ambar-bg)}
+
+/* Busca */
+#busca{margin-top:2.6rem}
+#busca label{display:block;font:650 1.25rem/1.3 var(--display);letter-spacing:-.015em;margin:0 0 .9rem}
+.busca-campo{position:relative}
+.busca-campo svg{position:absolute;left:1.15rem;top:50%;transform:translateY(-50%);color:var(--mute)}
+#q{width:100%;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:1rem;padding:1rem 1.2rem 1rem 3.1rem;font:500 1.05rem var(--sans);box-shadow:var(--shadow)}
+#q:focus{outline:0;border-color:var(--lagoa);box-shadow:0 0 0 4px var(--lagoa-soft)}
+#q::-webkit-search-cancel-button{display:none}
+.count{color:var(--mute);font-size:.9rem;margin:1rem 0 1.1rem;min-height:1px}
+.note{background:var(--sol-bg);color:var(--sol-ink);border-radius:1rem;padding:.9rem 1.2rem;margin:0 0 1.2rem;font-size:.95rem}
+
+/* Fichas de serviço */
+#out{display:grid;gap:1.4rem}
+.item{background:var(--paper);border-radius:1.5rem;box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(14rem,19rem) minmax(0,1fr);overflow:hidden}
+.lado{padding:1.8rem 1.8rem 1.6rem;background:linear-gradient(180deg,var(--tint),transparent 85%);border-right:1px solid var(--line)}
+.item h2{margin:0;display:flex;flex-direction:column;gap:.5rem}
+.item h2 .code{font:700 clamp(2.3rem,3.8vw,2.9rem)/.95 var(--display);letter-spacing:-.04em;color:var(--lagoa);font-variant-numeric:tabular-nums}
+.item h2 .titulo{font:600 1.08rem/1.35 var(--display);letter-spacing:-.01em;color:var(--ink)}
+.lado .copy{margin:.9rem 0 0}
+.lado .boa{display:inline-block;margin:.8rem .5rem 0 0;vertical-align:.12em}
+.lado .boa+.copy{margin-left:0}
+.why{font-size:.85rem;color:var(--mute);margin:.9rem 0 0}
+.ativ{list-style:none;margin:1.3rem 0 0;padding:1rem 0 0;border-top:1px solid var(--line);font-size:.88rem;color:var(--mute);display:grid;gap:.7rem}
+.ativ b{display:block;color:var(--ink);font:600 .92rem var(--display);font-variant-numeric:tabular-nums}
+.ativ .sn{display:block;margin-top:.15rem}
+.campos{padding:1.2rem 1.6rem 1.4rem;display:grid;gap:1rem;align-content:start}
+.mun{background:var(--sol-bg);color:var(--sol-ink);border-radius:.9rem;padding:.75rem 1rem;font-size:.92rem}
+.nbs{border:1px solid var(--line);border-radius:1.1rem;overflow:hidden}
+.row{display:grid;grid-template-columns:9.5rem minmax(0,1fr);border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.k{padding:.95rem 1rem;font-size:.85rem;color:var(--mute);line-height:1.3}
+.k b{display:block;color:var(--ink);font:600 .95rem var(--display)}
+.v{padding:.85rem 1.1rem .85rem 0;min-width:0}
+.r-nbs{background:var(--tint)}
+.cod{font:650 1.12rem var(--display);font-variant-numeric:tabular-nums;letter-spacing:.005em;color:var(--ink)}
+.desc{color:var(--mute);font-size:.93rem;display:block;margin-top:.1rem}
+.op{display:grid;gap:.15rem;padding:.55rem 0;border-top:1px dashed var(--line)}
+.op:first-child{border-top:0;padding-top:0}
+.op:last-child{padding-bottom:0}
+.op .desc b{color:var(--ink);font-weight:600}
+.tag{display:inline-block;font-size:.78rem;font-weight:600;color:var(--lagoa);background:var(--lagoa-soft);border-radius:99px;padding:0 .55rem;margin-left:.3rem;vertical-align:.1em}
+.var{font-size:.84rem;color:var(--mute);margin-top:.15rem}
+.dest{color:var(--ink);font-weight:600}
+.copy{border:1px solid var(--line);background:var(--paper);color:var(--lagoa);border-radius:99px;padding:.05rem .7rem;font-size:.8rem;font-weight:600;cursor:pointer;margin-left:.55rem;vertical-align:.12em;transition:background .15s,color .15s}
+.copy:hover{border-color:var(--lagoa)}
+.copy.feito{background:var(--lagoa);color:var(--lagoa-ink);border-color:var(--lagoa)}
+.warn{background:var(--sol-bg);color:var(--sol-ink);padding:.7rem 1.1rem;font-size:.9rem}
+.hint{color:var(--mute);font-size:.86rem;margin:.35rem 0 0}
+.empty{background:var(--paper);border-radius:1.2rem;padding:2rem;text-align:center;color:var(--mute);box-shadow:var(--shadow)}
+
+/* Ajuda e rodapé */
+.nav{display:flex;align-items:center;gap:.8rem}
+.abas{display:flex;gap:.2rem;padding:.2rem;border:1px solid rgba(127,230,214,.28);border-radius:99px}
+.aba{background:transparent;border:0;color:var(--foam-mute);border-radius:99px;padding:.3rem .95rem;font-size:.88rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.aba:hover{color:var(--foam)}
+.aba[aria-selected="true"]{background:var(--piscina);color:var(--sea)}
+#hero-ajuda h1{max-width:none;margin-bottom:.9rem}
+.lead{color:var(--foam-mute);font-size:1.1rem;margin:0;max-width:62ch;text-wrap:balance}
+.ajuda{background:var(--paper);border-radius:1.5rem;box-shadow:var(--shadow);padding:2rem 2.2rem}
+.ajuda dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:0 3rem;margin:0}
+.ajuda dl>div{padding:1.2rem 0;border-top:1px solid var(--line)}
+.ajuda dt{font:650 1.08rem var(--display);letter-spacing:-.01em;margin-bottom:.3rem;color:var(--lagoa)}
+.ajuda dd{margin:0;color:var(--ink);font-size:.97rem;max-width:62ch;text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+footer{color:var(--mute);font-size:.84rem;display:flex;justify-content:space-between;gap:.6rem 2rem;flex-wrap:wrap;margin-top:2.4rem}
+footer span:first-child{max-width:60ch}
+
+/* Voltar ao início */
+#topo{position:fixed;right:1.5rem;bottom:1.5rem;z-index:20;display:flex;align-items:center;gap:.5rem;background:var(--sea);color:var(--foam);border:1px solid rgba(127,230,214,.35);border-radius:99px;padding:.7rem 1.15rem;font-weight:600;font-size:.92rem;cursor:pointer;box-shadow:0 12px 28px -10px rgba(4,23,28,.6);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}
+#topo.on{opacity:1;transform:none;pointer-events:auto}
+#topo:hover{border-color:var(--piscina)}
+#topo svg{color:var(--piscina)}
+@media (max-width:760px){#topo{right:1rem;bottom:1rem;padding:.75rem}#topo span{display:none}}
+@media (prefers-reduced-motion:reduce){#topo{transition:none}}
+
+/* Revelação única ao carregar a empresa */
+@keyframes sobe{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.revela .emp,.revela .cnbox,.revela .item{animation:sobe .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 70ms)}
+@media (prefers-reduced-motion:reduce){.revela .emp,.revela .cnbox,.revela .item{animation:none}#manual summary::before{transition:none}}
+
+@media (max-width:760px){
+  .wrap{padding:0 1rem}
+  .hero{padding-bottom:5.5rem}
+  .topo{margin-bottom:2.2rem}
+  .marca .ver{display:none}
+  .topo{flex-wrap:wrap}
+  .nav{width:100%;justify-content:space-between}
+  .ajuda{padding:1.2rem 1.3rem}
+  .campo{flex-wrap:wrap;padding:.5rem;border-radius:1.1rem}
+  #cnpj{padding:.5rem .7rem;flex-basis:100%}
+  .campo .btn{flex:1}
+  .emp{padding:1.3rem;grid-template-columns:1fr}
+  .fatos{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));gap:.9rem 1.2rem;border-top:1px solid var(--line);padding-top:.9rem}
+  .fatos div{border-left:0;padding:0}
+  .item{grid-template-columns:1fr}
+  .lado{border-right:0;border-bottom:1px solid var(--line);padding:1.4rem 1.3rem}
+  .campos{padding:1rem}
+  .row{grid-template-columns:1fr}
+  .k{padding:.75rem 1rem 0}
+  .v{padding:.3rem 1rem .85rem}
+  table.cn thead{display:none}
+  table.cn tr{display:block;border-top:1px solid var(--line);padding:.55rem .3rem}
+  table.cn tbody tr:first-child{border-top:0}
+  table.cn td{display:inline-block;border:0;padding:.15rem .7rem}
+  table.cn td.ds{display:block}
+  table.cn td[data-l]::before{content:attr(data-l);color:var(--mute);font-weight:400}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <svg class="ondas" viewBox="0 0 1200 144" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 40 C150 10 300 70 450 40 S750 10 900 40 1100 70 1200 40" opacity=".18"/>
+    <path d="M0 64 C160 34 320 94 480 64 S800 34 960 64 1120 94 1200 64" opacity=".26"/>
+    <path d="M0 88 C140 60 300 116 460 88 S780 60 940 88 1110 116 1200 88" opacity=".36"/>
+    <path d="M0 112 C170 86 330 136 500 112 S820 86 980 112 1130 136 1200 112" opacity=".5"/>
+  </svg>
+  <div class="wrap">
+    <div class="topo">
+      <div class="marca">
+        <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="1" width="24" height="24" rx="7" fill="none" stroke="var(--piscina)" stroke-width="1.6"/><path d="M6 15c2.3-2.6 4.7-2.6 7 0s4.7 2.6 7 0" fill="none" stroke="var(--piscina)" stroke-width="1.8" stroke-linecap="round"/><path d="M7 9.5h12" stroke="var(--piscina)" stroke-width="1.8" stroke-linecap="round" opacity=".55"/></svg>
+        Consulta NFSe por CNPJ <span class="ver">/*VERSAO*/</span>
+      </div>
+      <div class="nav">
+        <div class="abas" role="tablist" aria-label="Seções">
+          <button id="aba-consulta" class="aba" role="tab" aria-selected="true" aria-controls="tela-consulta" type="button">Consulta</button>
+          <button id="aba-ajuda" class="aba" role="tab" aria-selected="false" aria-controls="tela-ajuda" type="button">Como usar</button>
+        </div>
+        <button id="tema" class="tema" type="button"></button>
+      </div>
+    </div>
+    <div id="hero-consulta">
+    <aside class="amostra" aria-hidden="true">
+      <div class="rot">Exemplo</div>
+      <div class="num">04.01</div>
+      <div class="nome">Medicina e biomedicina</div>
+      <dl><dt>NBS</dt><dd>1.2301.22.00</dd><dt>cIndOp</dt><dd>030101</dd><dt>Classificação</dt><dd>200029</dd><dt>CST</dt><dd>200</dd></dl>
+      <p class="leg">É assim que cada serviço da sua empresa vai aparecer depois da consulta.</p>
+    </aside>
+    <h1>Os códigos da sua nota de serviço, a partir do CNPJ.</h1>
+    <label for="cnpj" class="sr">CNPJ da empresa</label>
+    <div class="campo">
+      <input id="cnpj" type="search" placeholder="00.000.000/0000-00" autocomplete="off" maxlength="18" spellcheck="false" autofocus>
+      <button id="consultar" class="btn btn-pri" type="button">Consultar</button>
+    </div>
+    <div class="acoes">
+      <p id="msg" class="hint">Buscamos as atividades da empresa no cadastro da Receita Federal.</p>
+      <button id="nova" class="link" type="button">Nova consulta</button>
+    </div>
+    <details id="manual">
+      <summary>Informar as atividades (CNAE) manualmente</summary>
+      <p>Use se a consulta pelo CNPJ não funcionar. Aceita 8630-5/03 ou 8630503, um por linha ou separados por vírgula.</p>
+      <textarea id="cnaes" aria-label="Códigos CNAE" placeholder="8630-5/03, 6201-5/01"></textarea>
+    </details>
+    </div>
+    <div id="hero-ajuda" hidden>
+      <h1>Como usar e o que observar</h1>
+      <p class="lead">Do CNPJ à nota: o que cada código significa e onde prestar atenção.</p>
+    </div>
+  </div>
+</header>
+
+<button id="topo" type="button" aria-label="Voltar ao início" tabindex="-1">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  <span>Voltar ao início</span>
+</button>
+
+<main class="wrap" id="main">
+  <div id="tela-consulta" role="tabpanel" aria-labelledby="aba-consulta">
+  <div id="inicio" class="vazio">
+    <h2>Comece pelo CNPJ da empresa</h2>
+    <p>Mostramos as atividades do cadastro e, para cada serviço, os códigos que vão na nota: item da LC 116, NBS, cIndOp e classificação tributária, prontos para copiar.</p>
+  </div>
+  <div id="empresa"></div>
+  <div id="cnlist"></div>
+  <div id="busca" hidden>
+    <label for="q">Qual serviço você prestou?</label>
+    <div class="busca-campo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Ex.: consulta, manutenção, software" autocomplete="off">
+    </div>
+  </div>
+  <div id="count" class="count"></div>
+  <div id="note"></div>
+  <div id="out"></div>
+  </div>
+
+  <section id="tela-ajuda" class="ajuda" role="tabpanel" aria-labelledby="aba-ajuda" hidden>
+    <dl>
+      <div><dt>Como começar</dt><dd>Digite o CNPJ na aba Consulta. A página busca as atividades (CNAE) da empresa no cadastro da Receita Federal e mostra só os serviços correspondentes. Depois, use a busca para achar o serviço que você prestou.</dd></div>
+      <div><dt>Item da LC 116</dt><dd>É o código do serviço na nota. Cada atividade (CNAE) da empresa pode corresponder a um ou mais itens.</dd></div>
+      <div><dt>Código diferente na prefeitura</dt><dd>Alguns serviços aparecem no cadastro municipal com um código mais detalhado (ex.: 14.14.02). Na NFS-e Nacional, use o item indicado no aviso amarelo (ex.: 14.14).</dd></div>
+      <div><dt>NBS</dt><dd>Alguns itens têm mais de uma NBS possível. Escolha a que descreve o serviço prestado.</dd></div>
+      <div><dt>cIndOp</dt><dd>Diz onde o serviço é considerado prestado. Use 030101 se o serviço é feito no seu estabelecimento e 030102 se é feito fora dele. 100301 é a regra geral, inclusive para serviços feitos à distância; para cliente no exterior ou serviço sem cobrança, veja a observação abaixo do código.</dd></div>
+      <div><dt>CST-IBS/CBS</dt><dd>Os três primeiros dígitos da classificação tributária. O sistema costuma preencher sozinho.</dd></div>
+      <div><dt>CNAE sem correspondência</dt><dd>A atividade não é um serviço da lista da LC 116 (por exemplo, comércio) e não gera nota de serviço.</dd></div>
+      <div><dt>Simples Nacional</dt><dd>O anexo mostrado é o da atividade. Impeditiva indica atividade que não permite a opção pelo Simples. Confirme o enquadramento com o seu contador.</dd></div>
+      <div><dt>Na dúvida</dt><dd>Esta é uma ferramenta de apoio. Fale com o seu contador antes de emitir a nota.</dd></div>
+    </dl>
+  </section>
+  <footer><span>Base: Anexo VIII v1.02.00 (26/10/2026) e Anexo VII v1.03.00 do Portal Nacional da NFS-e. Só o CNPJ digitado é enviado, para a consulta pública do cadastro (BrasilAPI); o restante funciona no seu computador.</span><span>Desenvolvido por Romany Melo.</span></footer>
+</main>
+
+<script>
+const DATA = /*DATA*/;
+const VAR = {
+  '100101':'Se o adquirente for do exterior, o código é 100102; se a operação não for onerosa, 100201.',
+  '100301':'Se o adquirente for do exterior, o código é 100302; se a operação não for onerosa, 100401.',
+  '100501':'Se o adquirente for do exterior, o código é 100502; se a operação não for onerosa, 100601.'
+};
+const DIST = { '100301': 'serviços prestados à distância' };
+const DEST = /diverso do estabelecimento do fornecedor|Estabelecimento do fornecedor/g;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const destaque = t => esc(t).replace(DEST, '<span class="dest">$&</span>');
+const fmtCnae = c => c.slice(0,4) + '-' + c[4] + '/' + c.slice(5);
+const ITEMS = new Map(DATA.items.map(it => [it.i, it]));
+const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/-/g,' ');
+const noZero = c => c.replace(/^0(\d\.)/,'$1');
+
+// ===== Busca inteligente (sem IA em tempo real): vocabulário por item + relevância + tolerância a erro =====
+const STOP = new Set(['de','da','do','das','dos','e','em','para','por','com','a','o','as','os','um','uma','no','na','nos','nas','ao','aos','servico','servicos','prestacao','geral','tipo','que','ou','empresa','trabalho']);
+const stem = w => { let x = w; if(x.length > 5) x = x.replace(/(as|os|es|a|o|e|s)$/, ''); else if(x.length > 3 && x.endsWith('s')) x = x.slice(0, -1); return x.length > 8 ? x.slice(0, 8) : x; };
+const toks = s => norm(s).split(/[^a-z0-9]+/).filter(Boolean);
+const stems = s => toks(s).filter(w => !STOP.has(w) && w.length > 1).map(stem);
+
+// NBS mais provável por tipo de serviço (saúde), conferido no Anexo VIII
+const HINT = [
+  [/\b(usg|ultrassom|ultrassonografia|ultra som|ecografia|raio ?x|radiografia|tomografia|ressonancia)\b/, ['1.2301.94.00']],
+  [/\b(exame de sangue|hemograma|laboratorio|analise clinica|exames laboratoriais)\b/, ['1.2301.93.00']],
+  [/\b(consulta|medico|medica|ortopedista|cardiologista|pediatra|ginecologista)\b/, ['1.2301.22.00','1.2301.21.00']],
+  [/\b(fono|fonoaudiologo|fonoaudiologa|fonoaudiologia)\b/, ['1.2301.99.00']],
+  [/\b(fisio|fisioterapeuta|fisioterapia)\b/, ['1.2301.92.00']],
+  [/\b(dentista|odonto|odontologia)\b/, ['1.2301.23.00']],
+  [/\b(psicologo|psicologa|psicologia)\b/, ['1.2301.98.00']],
+  [/\b(nutricionista|nutricao)\b/, ['1.2301.99.00']],
+  [/\b(enfermeiro|enfermagem|curativo|injecao)\b/, ['1.2301.91.00']],
+];
+
+const NOTES = [
+  [/\b(restaurante|lanchonete|bar|padaria|pizzaria|marmita|refeicao|refeicoes|alimentacao|comida)\b/, 'Fornecimento de alimentação e bebidas costuma ser tratado como venda de mercadoria (ICMS), fora da lista de serviços da LC 116. Os itens abaixo são só aproximações; confirme o enquadramento.'],
+  [/\b(venda|vendas|loja|comercio|mercadoria|mercadorias|revenda)\b/, 'Venda de mercadorias não é serviço da LC 116 (é ICMS). Se houver um serviço junto (instalação, conserto, montagem), busque pelo serviço.'],
+  [/\b(intermunicipal|interestadual)\b/, 'A lista da LC 116 só traz transporte de natureza municipal (itens 16.01 e 16.02). Transporte intermunicipal ou interestadual costuma ser ICMS. Os itens abaixo são só aproximações; confirme o enquadramento.'],
+  [/\b(peca|pecas)\b/, 'Peças e partes empregadas em conserto ou manutenção ficam sujeitas ao ICMS (ressalva da descrição dos itens 14.01 e 14.03). O ISS incide só sobre o serviço.'],
+];
+const VOCAB = new Set();
+const items = DATA.items.map(it => {
+  const d = new Set(stems(it.d));
+  const kwPhrases = (it.k || []).map(p => ({ p, n: norm(p), s: new Set(stems(p)) }));
+  const k = new Set(); kwPhrases.forEach(x => x.s.forEach(w => k.add(w)));
+  const nb = new Set(); it.n.forEach(n => stems(n.d).forEach(w => nb.add(w)));
+  [d, k, nb].forEach(set => set.forEach(w => VOCAB.add(w)));
+  return { it, d, k, nb, kwPhrases, dn: norm(it.d), code: noZero(it.i) };
+});
+const VOCAB_ARR = [...VOCAB];
+const DF = {};
+items.forEach(x => { const all = new Set([...x.d, ...x.k, ...x.nb]); all.forEach(w => DF[w] = (DF[w] || 0) + 1); });
+const idf = w => Math.log(1 + items.length / (DF[w] || 1));
+
+function lev(a, b, max){
+  if(Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = Array.from({length: b.length + 1}, (_, i) => i);
+  for(let i = 1; i <= a.length; i++){
+    const cur = [i]; let min = i;
+    for(let j = 1; j <= b.length; j++){
+      cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+      if(cur[j] < min) min = cur[j];
+    }
+    if(min > max) return max + 1;
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+let lastNote = '';
+function runQuery(q){
+  lastNote = '';
+  const nq = norm(q).trim();
+  if(!nq) return [];
+  if(/^\d{1,2}\.\d{2}(\.\d{2})?$/.test(nq)){
+    const k = noZero(nq);
+    return items.filter(x => x.code === k || x.it.i === nq).map(x => ({ it: x.it, score: 99, why: [], level: 'alta' }));
+  }
+  if(/^[\d.\s]+$/.test(nq) && nq.replace(/\D/g,'').length >= 3){
+    const dig = nq.replace(/\D/g,'');
+    const out = [];
+    items.forEach(x => {
+      const hit = new Set(x.it.n.filter(n => n.c.replace(/\./g,'').startsWith(dig)).map(n => n.c));
+      if(hit.size) out.push({ it: x.it, score: 99, why: [], level: 'media', nbsHit: hit });
+    });
+    return out;
+  }
+  let base = stems(q);
+  if(!base.length) base = toks(q).map(stem);
+  const approx = [];
+  // cada palavra vira um grupo de alternativas
+  const groups = base.map(w => {
+    if(VOCAB.has(w)) return [w];
+    if(w.length >= 4){
+      const pre = VOCAB_ARR.filter(v => v.startsWith(w));
+      if(pre.length) return [w, ...pre.slice(0, 12)];
+    }
+    if(w.length >= 5){
+      const max = w.length >= 8 ? 2 : 1; let best = null, bd = max + 1;
+      for(const v of VOCAB_ARR){ if(v[0] !== w[0]) continue; const dd = lev(w, v, max); if(dd < bd){ bd = dd; best = v; } }
+      if(best){ approx.push(best); return [w, best]; }
+    }
+    return [w];
+  });
+  if(approx.length) lastNote = 'Entendi também como: ' + approx.join(', ') + '.';
+  const need = Math.max(1, Math.ceil(groups.length * 0.5));
+  const out = [];
+  items.forEach(x => {
+    let score = 0, matched = 0; const why = new Set();
+    groups.forEach(g => {
+      let best = 0;
+      g.forEach(w => {
+        const inD = x.d.has(w), inK = x.k.has(w), inN = x.nb.has(w);
+        if(inK) x.kwPhrases.forEach(kp => { if(kp.s.has(w)) why.add(kp.p); });
+        let v = 0;
+        if(inD || inK) v = (4 + (inD && inK ? 0.5 : 0)) * idf(w); else if(inN) v = 1.5 * idf(w);
+        if(v > best) best = v;
+      });
+      if(best > 0){ score += best; matched++; }
+    });
+    if(matched < need) return;
+    if(groups.length > 1 && matched === groups.length) score += 12;
+    if(x.kwPhrases.some(kp => kp.n.includes(nq))) score += 14;
+    if(x.dn.includes(nq)) score += 6;
+    if(x.kwPhrases.some(kp => kp.n === nq)) score += 18;
+    out.push({ it: x.it, score, why: [...why].slice(0, 4) });
+  });
+  out.sort((a, b) => b.score - a.score || (a.it.i < b.it.i ? -1 : 1));
+  const top = out.length ? out[0].score : 0;
+  out.forEach(r => { r.level = (!approx.length && r.score >= top * 0.7) ? 'alta' : 'media'; });
+  return out;
+}
+
+const fmtSn = sn => esc(sn).replace('Impeditiva', '<span class="badge bad">Impeditiva</span>');
+function copyBtn(t){ return '<button class="copy" data-c="'+esc(t)+'" type="button" aria-label="Copiar '+esc(t)+'">copiar</button>'; }
+
+function lerCnaes(txt){
+  const out = [];
+  (txt.match(/\d{4}\s*-?\s*\d\s*\/?\s*\d{2}/g) || []).forEach(m => { const c = m.replace(/\D/g,''); if(!out.includes(c)) out.push(c); });
+  return out;
+}
+
+// selo do local da prestação, lido do texto do Anexo VII (vale para qualquer cIndOp)
+function tagLocal(l){
+  const t = (l || '').toLowerCase();
+  if(t.includes('diverso do estabelecimento do fornecedor')) return '<span class="tag">diverso do estabelecimento do fornecedor</span>';
+  if(t.includes('estabelecimento do fornecedor')) return '<span class="tag">estabelecimento do fornecedor</span>';
+  return '';
+}
+
+function nbsHtml(n, hints){
+  const inds = n.o.map(o => { const d = DATA.indop[o] || {};
+    return '<div class="op"><div><span class="cod">'+o+'</span>'+copyBtn(o)+(DIST[o]?'<span class="tag">'+DIST[o]+'</span>':'')+tagLocal(d.l)+'</div>'
+      + '<span class="desc">'+esc(d.t||'')+(d.l?'. Local: '+destaque(d.l):'')+'</span>'
+      + (VAR[o]?'<span class="var">'+VAR[o]+'</span>':'')+'</div>'; }).join('');
+  const ccs = n.cc || [];
+  const csts = [...new Set(ccs.map(x => x[0].slice(0,3)))];
+  const warn = ccs.some(x => x[0] === '820001') ? '<div class="warn">Planos de saúde usam a classificação 820001, diferente do restante da saúde.</div>' : '';
+  const multi = ccs.length > 1;
+  const ccHtml = ccs.map(x => '<div class="op"><div><span class="cod">'+esc(x[0])+'</span>'+copyBtn(x[0])+'</div><span class="desc">'+esc(x[1])+'</span></div>').join('');
+  return '<div class="nbs">'
+    + '<div class="row r-nbs"><span class="k"><b>NBS</b>serviço</span><span class="v"><span class="cod">'+esc(n.c)+'</span>'+copyBtn(n.c.replace(/\./g,''))+(hints.has(n.c)?' <span class="badge ok">mais provável</span>':'')+'<span class="desc">'+esc(n.d)+'</span></span></div>'
+    + '<div class="row r-ind"><span class="k"><b>cIndOp</b>onde é prestado</span><span class="v">'+(inds||'<span class="desc">não definido na tabela</span>')+'</span></div>'
+    + '<div class="row r-cc"><span class="k"><b>'+(multi?'Classificações':'Classificação')+'</b>IBS e CBS</span><span class="v">'+ccHtml+(multi?'<p class="hint">Mais de uma classificação prevista para esta NBS: escolha conforme o caso concreto.</p>':'')+'</span></div>'
+    + '<div class="row r-cst"><span class="k"><b>CST</b>IBS e CBS</span><span class="v"><span class="cod">'+esc(csts.join(' / '))+'</span></span></div>'
+    + warn + '</div>';
+}
+
+function render(anima){
+  const cods = lerCnaes($('#cnaes').value);
+  $('#busca').hidden = !cods.length; $('#note').innerHTML = '';
+  $('#inicio').hidden = !!cods.length || !!$('#empresa').innerHTML;
+  $('#main').classList.toggle('revela', !!anima);
+  if(!cods.length){ $('#count').textContent=''; $('#cnlist').innerHTML=''; $('#out').innerHTML=''; return; }
+  // agrupa por item nacional: quais CNAEs levam a ele e com qual código municipal
+  const porItem = new Map();
+  const linhas = cods.map(c => {
+    const e = DATA.cnae[c];
+    if(!e) return '<tr><td class="cod">'+fmtCnae(c)+'</td><td class="ds">'+esc(descApi[c]||'')+'</td><td colspan="2"><span class="badge bad">CNAE sem correspondência</span></td></tr>';
+    e.s.forEach(([mun, nac, sn]) => {
+      if(!porItem.has(nac)) porItem.set(nac, { cnaes: [], mun: new Set() });
+      const g = porItem.get(nac);
+      g.cnaes.push([c, e.d, sn]);
+      if(mun !== nac) g.mun.add(mun);
+    });
+    return e.s.map(([mun, , sn], k) => '<tr>'
+      + (k === 0 ? '<td class="cod" rowspan="'+e.s.length+'">'+fmtCnae(c)+'</td><td class="ds" rowspan="'+e.s.length+'">'+esc(cap(e.d))+'</td>' : '')
+      + '<td class="it">'+esc(mun)+'</td><td data-l="Simples: ">'+fmtSn(sn)+'</td></tr>').join('');
+  });
+  $('#count').textContent = porItem.size + ' serviço(s) para emitir nota, a partir de ' + cods.length + ' atividade(s).';
+  $('#cnlist').innerHTML = '<h2 class="secao">Atividades da empresa</h2><div class="cnbox"><table class="cn"><thead><tr><th>CNAE</th><th>Atividade</th><th>Item LC 116</th><th>Simples Nacional</th></tr></thead><tbody>'+linhas.join('')+'</tbody></table></div>';
+  // busca por descrição: só entre os itens do CNPJ
+  const q = $('#q').value, nq = norm(q);
+  let lista = [...porItem.keys()].sort().map(i => ({ i }));
+  const hints = new Set();
+  if(q.trim()){
+    const res = runQuery(q).filter(r => porItem.has(r.it.i));
+    // "boa correspondência" como no original, mas medida só entre os serviços da empresa
+    const topo = res.length ? res[0].score : 0;
+    const boa = r => r.score === 99 ? r.level === 'alta' : (!lastNote && r.score >= topo * 0.7);
+    lista = res.map(r => ({ i: r.it.i, nbsHit: r.nbsHit, why: r.why, boa: boa(r) }));
+    HINT.forEach(([re, codes]) => { if(re.test(nq)) codes.forEach(c => hints.add(c)); });
+    const nt = NOTES.find(([re]) => re.test(nq));
+    $('#note').innerHTML = nt ? '<div class="note">' + esc(nt[1]) + '</div>' : '';
+    $('#count').textContent = lista.length
+      ? lista.length + ' de ' + porItem.size + ' serviço(s) da empresa correspondem à busca, do mais para o menos relacionado.' + (lastNote ? ' ' + lastNote : '')
+      : '';
+    if(!lista.length){ $('#out').innerHTML = '<div class="empty">Nenhum serviço da empresa corresponde a essa busca. Tente outra palavra ou apague a busca para ver todos.</div>'; return; }
+  }
+  const temNota = !!$('#note').innerHTML;
+  // NBS mais provável em qualquer busca: compara as palavras digitadas com a descrição de cada NBS
+  // (mesmos radicais da busca); a tabela HINT de saúde tem prioridade
+  const qs = q.trim() ? stems(q) : [];
+  const pontua = n => { const s = stems(n.d); return qs.filter(w => s.some(v => v === w || (w.length >= 4 && v.startsWith(w)))).length; };
+  function ordenaNbs(ns){
+    if(!qs.length) return { ns, prov: new Set() };
+    const sc = new Map(ns.map(n => [n.c, (hints.has(n.c) ? 100 : 0) + pontua(n)]));
+    const max = Math.max(...sc.values());
+    const prov = new Set(ns.filter(n => hints.has(n.c)).map(n => n.c));
+    if(max > 0 && ns.some(n => sc.get(n.c) < max)) ns.filter(n => sc.get(n.c) === max).forEach(n => prov.add(n.c));
+    return { ns: [...ns].sort((a, b) => sc.get(b.c) - sc.get(a.c)), prov };
+  }
+  $('#out').innerHTML = lista.map(({ i, nbsHit, why, boa }, idx) => {
+    const it = ITEMS.get(i), g = porItem.get(i);
+    const mun = g.mun.size ? '<div class="mun">No cadastro municipal aparece como <b>'+[...g.mun].map(esc).join('</b> e <b>')+'</b>. Na NFS-e Nacional use o item <b>'+esc(i)+'</b>.</div>' : '';
+    const ativ = '<ul class="ativ">' + g.cnaes.map(([c, d, sn]) => '<li><b>'+fmtCnae(c)+'</b>'+esc(cap(d))+(sn?'<span class="sn">Simples: '+fmtSn(sn)+'</span>':'')+'</li>').join('') + '</ul>';
+    const alt = it.a.length ? '<div class="warn">Outras classificações previstas para este item: ' + it.a.map(a => '<b>'+esc(a.cc)+'</b> ('+esc(a.cn)+')').join('; ') + '. Use conforme o caso concreto.</div>' : '';
+    return '<section class="item" style="--i:'+Math.min(idx + 2, 8)+'"><div class="lado"><h2><span class="code">'+esc(i)+'</span><span class="titulo">'+esc(titulo(it.d))+'</span></h2>'+(boa && !temNota ? '<span class="badge ok boa">boa correspondência</span>' : '')+copyBtn(i)
+      + (why && why.length ? '<p class="why">Relacionado a: ' + why.map(esc).join(', ') + '</p>' : '') + ativ + '</div>'
+      + '<div class="campos">'+mun+(({ ns, prov }) => ns.map(n => nbsHtml(n, prov)).join(''))(ordenaNbs(it.n.filter(n => !nbsHit || nbsHit.has(n.c))))+alt+'</div></section>';
+  }).join('');
+}
+// descrições de item vêm em "Title Case" no Anexo: conectores em minúscula, sem ponto final
+const CONECT = new Set(['e','de','da','do','das','dos','ou','em','para','por','com','a','o','as','os','no','na','nos','nas','ao','aos','à','às','se','que','sem']);
+const titulo = s => s.replace(/\.$/, '').split(' ').map((w, k) => k && CONECT.has(w.toLowerCase()) ? w.toLowerCase() : w).join(' ');
+// descrições de CNAE vêm em maiúsculas; deixa só a inicial maiúscula para ler melhor
+function cap(s){ s = String(s || ''); return s === s.toUpperCase() ? s.charAt(0) + s.slice(1).toLowerCase() : s; }
+
+// ===== Consulta do CNPJ (BrasilAPI: única chamada de rede da página) =====
+let descApi = {};   // CNAE -> descrição vinda da Receita (para CNAE sem correspondência)
+let empresa = null; // dados da última consulta (município define a alíquota)
+const limpaCnpj = s => (s||'').toUpperCase().replace(/[^0-9A-Z]/g,'');
+// dígito verificador do CNPJ, inclusive alfanumérico (valor do caractere = código ASCII - 48)
+function cnpjValido(c){
+  if(!/^[0-9A-Z]{12}\d{2}$/.test(c) || /^(\d)\1{13}$/.test(c)) return false;
+  const dv = n => { let s = 0, p = 2; for(let i = n - 1; i >= 0; i--){ s += (c.charCodeAt(i) - 48) * p; p = p === 9 ? 2 : p + 1; } const r = s % 11; return r < 2 ? 0 : 11 - r; };
+  return dv(12) === +c[12] && dv(13) === +c[13];
+}
+const fmtCnpj = c => c.slice(0,2)+'.'+c.slice(2,5)+'.'+c.slice(5,8)+'/'+c.slice(8,12)+'-'+c.slice(12);
+function aviso(t, erro){ const m = $('#msg'); m.textContent = t; m.className = 'hint' + (erro ? ' erro' : ''); }
+function falhou(t){ aviso(t, true); $('#manual').open = true; }
+
+let consultando = '';
+async function consultar(){
+  const c = limpaCnpj($('#cnpj').value);
+  if(!c) return;
+  if(!cnpjValido(c)){ aviso('CNPJ inválido. Confira os números digitados.', true); return; }
+  if(consultando === c) return;
+  consultando = c; aviso('Consultando a Receita Federal…');
+  $('#empresa').innerHTML = '';
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 15000);
+  try{
+    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + c, { signal: ctl.signal });
+    if(r.status === 404 || r.status === 400){ falhou('CNPJ não encontrado na Receita Federal. Confira o número ou informe as atividades manualmente.'); return; }
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    const lista = [[d.cnae_fiscal, d.cnae_fiscal_descricao], ...(d.cnaes_secundarios || []).map(x => [x.codigo, x.descricao])]
+      .filter(([k]) => +k > 0).map(([k, ds]) => [String(k).padStart(7, '0'), ds || '']);
+    descApi = Object.fromEntries(lista);
+    empresa = { cnpj: c, nome: d.razao_social || '', municipio: d.municipio || '', uf: d.uf || '', ibge: String(d.codigo_municipio_ibge || ''), situacao: d.descricao_situacao_cadastral || '' };
+    const sit = empresa.situacao && empresa.situacao.toUpperCase() !== 'ATIVA' ? '<span class="sit">Situação no cadastro: '+esc(empresa.situacao.toLowerCase())+'</span>' : '';
+    $('#empresa').innerHTML = '<div class="emp"><div><span class="rot">Razão Social</span><h2>'+esc(empresa.nome)+'</h2>'+sit+'</div><dl class="fatos">'
+      + '<div><dt>CNPJ</dt><dd>'+fmtCnpj(c)+'</dd></div>'
+      + '<div><dt>Município</dt><dd>'+esc(empresa.municipio)+(empresa.uf ? '/'+esc(empresa.uf) : '')+'</dd></div>'
+      + '<div><dt>Atividades</dt><dd>'+lista.length+'</dd></div></dl></div>';
+    $('#cnpj').value = fmtCnpj(c);
+    $('#cnaes').value = lista.map(([k]) => fmtCnae(k)).join('\n');
+    aviso('Atividades carregadas do cadastro da Receita Federal.');
+    render(true);
+  }catch(e){
+    falhou('Não foi possível consultar o CNPJ agora (sem internet ou serviço fora do ar). Informe as atividades manualmente.');
+  }finally{ clearTimeout(t); consultando = ''; }
+}
+const MSG_INICIAL = $('#msg').textContent;
+$('#nova').addEventListener('click', () => {
+  ['#cnpj', '#cnaes', '#q'].forEach(s => $(s).value = '');
+  descApi = {}; empresa = null; $('#empresa').innerHTML = ''; $('#manual').open = false;
+  aviso(MSG_INICIAL);
+  history.replaceState(null, '', location.pathname);
+  render(); window.scrollTo(0, 0); $('#cnpj').focus();
+});
+$('#q').addEventListener('input', () => render());
+$('#consultar').addEventListener('click', consultar);
+$('#cnpj').addEventListener('keydown', e => { if(e.key === 'Enter') consultar(); });
+$('#cnpj').addEventListener('input', () => { const c = limpaCnpj($('#cnpj').value); if(c.length === 14 && cnpjValido(c)) consultar(); });
+$('#cnaes').addEventListener('input', () => { descApi = {}; empresa = null; $('#empresa').innerHTML = ''; render(); });
+// abas: Consulta | Como usar (a consulta preenchida é mantida ao trocar)
+function abrirAba(ajuda){
+  $('#aba-consulta').setAttribute('aria-selected', String(!ajuda));
+  $('#aba-ajuda').setAttribute('aria-selected', String(ajuda));
+  $('#hero-consulta').hidden = ajuda; $('#tela-consulta').hidden = ajuda;
+  $('#hero-ajuda').hidden = !ajuda; $('#tela-ajuda').hidden = !ajuda;
+  $('#main').classList.remove('revela');
+  window.scrollTo(0, 0);
+}
+$('#aba-consulta').addEventListener('click', () => { abrirAba(false); $('#cnpj').focus(); });
+$('#aba-ajuda').addEventListener('click', () => abrirAba(true));
+$('.abas').addEventListener('keydown', e => { if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){ const ajuda = $('#aba-consulta').getAttribute('aria-selected') === 'true'; abrirAba(ajuda); (ajuda ? $('#aba-ajuda') : $('#aba-consulta')).focus(); } });
+// botão "Voltar ao início": aparece depois que a abertura sai da tela
+const topoBtn = $('#topo');
+const mostraTopo = () => { const on = scrollY > $('.hero').offsetHeight; topoBtn.classList.toggle('on', on); topoBtn.tabIndex = on ? 0 : -1; };
+addEventListener('scroll', mostraTopo, { passive: true });
+topoBtn.addEventListener('click', () => {
+  const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: 0, behavior: suave ? 'smooth' : 'auto' });
+  $('#cnpj').focus({ preventScroll: true });
+});
+const temaBtn = $('#tema');
+const rotulo = t => t === 'dark' ? 'Modo claro' : 'Modo escuro';
+function setTema(t){ document.documentElement.setAttribute('data-theme', t); temaBtn.textContent = rotulo(t); try{ localStorage.setItem('tema', t); }catch(e){} }
+temaBtn.addEventListener('click', () => setTema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+temaBtn.textContent = rotulo(document.documentElement.getAttribute('data-theme'));
+document.addEventListener('click', e => { const b = e.target.closest('.copy'); if(!b) return; const t = b.dataset.c;
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { b.textContent = 'copiado'; b.classList.add('feito'); setTimeout(() => { b.textContent = 'copiar'; b.classList.remove('feito'); }, 1400); }).catch(() => {}); });
+const p = new URLSearchParams(location.search);
+if(p.get('cnae')){ $('#cnaes').value = p.get('cnae'); $('#manual').open = true; }
+if(p.get('q')) $('#q').value = p.get('q');
+render();
+if(p.get('cnpj')){ $('#cnpj').value = p.get('cnpj'); consultar(); }
+</script>
+</body>
+</html>
