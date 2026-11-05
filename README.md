@@ -13,14 +13,14 @@ Também traz uma busca por descrição ("consulta", "software", "manutenção"),
 ## Telas
 Capturas em modo escuro, com empresa fictícia (BrasilAPI simulada). A página também tem modo claro, pelo botão no topo.
 
-![Abertura](docs/img/01-abertura.png)
-![Atividades e serviços da empresa](docs/img/02-servicos.png)
-![Busca por descrição](docs/img/03-busca.png)
-![Aba Como usar](docs/img/04-como-usar.png)
+![Abertura](docs/img/01-abertura-escuro.png)
+![Atividades e serviços da empresa](docs/img/02-servicos-escuro.png)
+![Busca por descrição](docs/img/03-busca-escuro.png)
+![Aba Como usar](docs/img/04-como-usar-escuro.png)
 
 No celular:
 
-<img src="docs/img/05-celular.png" alt="Versão para celular" width="300">
+<img src="docs/img/05-celular-escuro.png" alt="Versão para celular" width="300">
 
 ## Como usar
 Abra o arquivo `dist/Consulta NFSe por CNPJ - vN - DD-MM-AAAA.html` no navegador. Não precisa instalar nada.
