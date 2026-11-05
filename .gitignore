@@ -17,3 +17,7 @@ dados/processado/correlacao.csv
 CLAUDE.md
 PLANO.md
 dados/processado/
+
+# Teste local com o logotipo do escritorio (v2)
+local/
+dist/*v2*

@@ -170,8 +170,9 @@ table.cn td.ds{color:var(--ink);max-width:30rem}
 .ajuda dl>div{padding:1.2rem 0;border-top:1px solid var(--line)}
 .ajuda dt{font:650 1.08rem var(--display);letter-spacing:-.01em;margin-bottom:.3rem;color:var(--lagoa)}
 .ajuda dd{margin:0;color:var(--ink);font-size:.97rem;max-width:62ch;text-align:justify;hyphens:auto;-webkit-hyphens:auto}
-footer{color:var(--mute);font-size:.84rem;display:flex;justify-content:space-between;gap:.6rem 2rem;flex-wrap:wrap;margin-top:2.4rem}
-footer span:first-child{max-width:60ch}
+footer{color:var(--mute);font-size:.84rem;border-top:1px solid var(--line);padding-top:1.8rem;margin-top:3rem;margin-bottom:1.6rem}
+footer p{margin:0;text-align:justify}
+footer .cred{margin-top:.5rem;font-size:.8rem;text-align:left}
 
 /* Voltar ao início */
 #topo{position:fixed;right:1.5rem;bottom:1.5rem;z-index:20;display:flex;align-items:center;gap:.5rem;background:var(--sea);color:var(--foam);border:1px solid rgba(127,230,214,.35);border-radius:99px;padding:.7rem 1.15rem;font-weight:600;font-size:.92rem;cursor:pointer;box-shadow:0 12px 28px -10px rgba(4,23,28,.6);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}
@@ -306,7 +307,7 @@ footer span:first-child{max-width:60ch}
       <div><dt>Na dúvida</dt><dd>Esta é uma ferramenta de apoio. Fale com o seu contador antes de emitir a nota.</dd></div>
     </dl>
   </section>
-  <footer><span>Base: Anexo VIII v1.02.00 (26/10/2026) e Anexo VII v1.03.00 do Portal Nacional da NFS-e. Só o CNPJ digitado é enviado, para a consulta pública do cadastro (BrasilAPI); o restante funciona no seu computador.</span><span>Desenvolvido por Romany Melo.</span></footer>
+  <footer><p>Base: Anexo VIII v1.02.00 (26/10/2026) e Anexo VII v1.03.00 do Portal Nacional da NFS-e. Só o CNPJ digitado é enviado, para a consulta pública do cadastro (BrasilAPI); o restante funciona no seu computador.</p><p class="cred">Desenvolvido por Romany Melo.</p></footer>
 </main>
 
 <script>
